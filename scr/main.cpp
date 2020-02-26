@@ -619,7 +619,7 @@ void setCamPosition()
 	cameraPos.y = radius * glm::sin(theta) * glm::sin(phi);
 	cameraPos.z = radius * glm::cos(theta);
 
-	std::cout << cameraPos.x << " " << cameraPos.y << " " << cameraPos.z << std::endl;
+	//std::cout << cameraPos.x << " " << cameraPos.y << " " << cameraPos.z << std::endl;
 
 	view = glm::lookAt(cameraPos, glm::vec3(0.0f), cameraUp);
 }

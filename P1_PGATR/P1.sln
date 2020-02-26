@@ -7,14 +7,30 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "P1", "P1.vcxproj", "{16C1C4
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		MinSizeRel|x64 = MinSizeRel|x64
+		MinSizeRel|x86 = MinSizeRel|x86
+		Release|x64 = Release|x64
 		Release|x86 = Release|x86
+		RelWithDebInfo|x64 = RelWithDebInfo|x64
+		RelWithDebInfo|x86 = RelWithDebInfo|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.Debug|x64.ActiveCfg = Debug|Win32
 		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.Debug|x86.ActiveCfg = Debug|Win32
 		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.Debug|x86.Build.0 = Debug|Win32
+		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.MinSizeRel|x64.ActiveCfg = Release|Win32
+		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.MinSizeRel|x64.Build.0 = Release|Win32
+		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.MinSizeRel|x86.ActiveCfg = Release|Win32
+		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.MinSizeRel|x86.Build.0 = Release|Win32
+		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.Release|x64.ActiveCfg = Release|Win32
 		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.Release|x86.ActiveCfg = Release|Win32
 		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.Release|x86.Build.0 = Release|Win32
+		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.RelWithDebInfo|x64.ActiveCfg = Release|Win32
+		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.RelWithDebInfo|x64.Build.0 = Release|Win32
+		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.RelWithDebInfo|x86.ActiveCfg = Release|Win32
+		{16C1C4DC-39FF-4E91-8161-E2072C207BCF}.RelWithDebInfo|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
