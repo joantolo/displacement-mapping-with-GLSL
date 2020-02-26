@@ -9,6 +9,7 @@ uniform sampler2D vertexTex;
 uniform sampler2D normalTex;
 uniform sampler2D emiTex;
 
+uniform vec3 lpos;
 
 //Variables Variantes 
 in vec2 texCoord;
@@ -26,7 +27,6 @@ vec3 pos;
 vec3 Ia = vec3 (0.3);
 vec3 Id = vec3 (1.0);
 vec3 Is = vec3 (0.7);
-vec3 lpos = vec3 (0.0); 
 
 vec3 shade();
 

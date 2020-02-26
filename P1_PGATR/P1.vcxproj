@@ -66,7 +66,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\libs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\include;%(AdditionalIncludeDirectories);$(SolutionDir)..\libs\include;%(AdditionalIncludeDirectories);../libs/include/;%(AdditionalIncludeDirectories);C:\Users\joanv.COMPUTADORJOAN\Documents\Universidad\Master IGV\Universidad\PGATR\Prácticas\P1_PGATR\libs\include;C:\Users\joanv.COMPUTADORJOAN\Documents\Universidad\Master IGV\Universidad\PGATR\Prácticas\P1_PGATR\libs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -88,7 +88,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\libs\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\include\;%(AdditionalIncludeDirectories);$(SolutionDir)..\libs\include;%(AdditionalIncludeDirectories);../libs/include/;%(AdditionalIncludeDirectories);C:\Users\joanv.COMPUTADORJOAN\Documents\Universidad\Master IGV\Universidad\PGATR\Prácticas\P1_PGATR\libs\include;C:\Users\joanv.COMPUTADORJOAN\Documents\Universidad\Master IGV\Universidad\PGATR\Prácticas\P1_PGATR\libs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>

@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <vector>
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -76,6 +77,9 @@ unsigned int postProccesProgram;
 //Atributos
 int inPosPP;
 
+//Uniforms
+int uLightPosPP;
+
 //Identificadores de texturas Post-proceso
 unsigned int colorBuffTexId;
 unsigned int emiBuffTexId;
@@ -94,22 +98,26 @@ unsigned int uEmiTexPP;
 // Datos que se almacenan en la memoria de la CPU
 //////////////////////////////////////////////////////////////
 
-float theta = 0.0f;
-float phi = 0.0f;
 
 //Matrices
 glm::mat4 proj = glm::mat4(1.0f);
 glm::mat4 view = glm::mat4(1.0f);
-glm::mat4 model = glm::mat4(1.0f);
+glm::mat4 modelObject = glm::mat4(1.0f);
+glm::mat4 modelLight = glm::mat4(1.0f);
+
+//Variable del modelo 
+unsigned int nVertexIndex;
 
 //Control de camara
-glm::vec3 cameraPos;
-glm::vec3 cameraUp;
-float radius;
+float theta = 0.0f;
+float phi = 0.0f;
 bool moveCam;
 
 //Variables near y far
 float projNear, projFar;
+
+//Posicion de la luz
+glm::vec4 lightPos;
 
 
 //////////////////////////////////////////////////////////////
@@ -123,7 +131,7 @@ void idleFunc();
 void keyboardFunc(unsigned char key, int x, int y);
 void mouseFunc(int button, int state, int x, int y);
 
-void renderCube();
+void renderObject();
 
 //Funciones de inicialización y destrucción
 void initContext(int argc, char** argv);
@@ -142,9 +150,6 @@ GLuint loadShader(const char* fileName, GLenum type);
 //Crea una textura, la configura, la sube a OpenGL,
 //y devuelve el identificador de la textura
 unsigned int loadTex(const char* fileName);
-
-//Funciones extra
-void setCamPosition();
 
 int main(int argc, char** argv)
 {
@@ -209,16 +214,18 @@ void initOGL()
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_CULL_FACE);
 
+	//Inicializamos matriz de proyeccion
 	projNear = 1.0f;
-	projFar = 50.0f;
+	projFar = 400.0f;
 	proj = glm::perspective(glm::radians(60.0f), 1.0f, projNear, projFar);
 
+	//Establecemos la posición de la luz
+	lightPos = glm::vec4(0, 30, 0, 1);
+	modelLight = glm::mat4(1);
+
 	//Inicializamos la cámara
-	radius = 5.0f;
-	cameraPos = glm::vec3(0.0f);
-	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	view = glm::lookAt(glm::vec3(0, 0, 40), glm::vec3(0), glm::vec3(0, 1, 0));
 	moveCam = false;
-	setCamPosition();
 }
 
 void destroy()
@@ -356,10 +363,22 @@ void initShaderPP(const char* vname, const char* fname)
 	uDepthTexPP = glGetUniformLocation(postProccesProgram, "depthTex");
 	if (uDepthTexPP != -1)
 		glUniform1i(uDepthTexPP, 4);
+
+	uLightPosPP = glGetUniformLocation(postProccesProgram, "lpos");
 }
 
 void initObj()
 {
+	// Read our .obj file
+	std::vector< glm::vec3 > vertexes;
+	std::vector< glm::vec2 > uvs;
+	std::vector< glm::vec3 > normals;
+	std::vector <unsigned int> indexes;
+	
+	bool res = loadOBJ("../models/teapot.obj", vertexes, uvs, normals, indexes);
+	unsigned int nVertex = vertexes.size();
+	nVertexIndex = indexes.size();
+
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
@@ -367,28 +386,30 @@ void initObj()
 	{
 		glGenBuffers(1, &posVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, posVBO);
-		glBufferData(GL_ARRAY_BUFFER, cubeNVertex * sizeof(float) * 3,
-			cubeVertexPos, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, nVertex * sizeof(glm::vec3),
+			&vertexes[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(inPos, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(inPos);
 	}
 
+	/*
 	if (inColor != -1)
 	{
 		glGenBuffers(1, &colorVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-		glBufferData(GL_ARRAY_BUFFER, cubeNVertex * sizeof(float) * 3,
+		glBufferData(GL_ARRAY_BUFFER, nVertex * sizeof(float) * 3,
 			cubeVertexColor, GL_STATIC_DRAW);
 		glVertexAttribPointer(inColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(inColor);
 	}
+	*/
 
 	if (inNormal != -1)
 	{
 		glGenBuffers(1, &normalVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
-		glBufferData(GL_ARRAY_BUFFER, cubeNVertex * sizeof(float) * 3,
-			cubeVertexNormal, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, nVertex * sizeof(glm::vec3),
+			&normals[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(inNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(inNormal);
 	}
@@ -397,8 +418,8 @@ void initObj()
 	{
 		glGenBuffers(1, &texCoordVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, texCoordVBO);
-		glBufferData(GL_ARRAY_BUFFER, cubeNVertex * sizeof(float) * 2,
-			cubeVertexTexCoord, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, nVertex * sizeof(glm::vec2),
+			&uvs[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(inTexCoord, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(inTexCoord);
 	}
@@ -406,10 +427,10 @@ void initObj()
 	glGenBuffers(1, &triangleIndexVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleIndexVBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-		cubeNTriangleIndex * sizeof(unsigned int) * 3, cubeTriangleIndex,
+		nVertexIndex * sizeof(unsigned int), &indexes[0],
 		GL_STATIC_DRAW);
 
-	model = glm::mat4(1.0f);
+	modelObject = glm::mat4(1.0f);
 
 	colorTexId = loadTex("../img/color2.png");
 	emiTexId = loadTex("../img/emissive.png");
@@ -519,9 +540,8 @@ void renderFunc()
 		glUniform1i(uEmiTex, 1);
 	}
 
-	//Dibujado de cubo
-	model = glm::mat4(1.0f);
-	renderCube();
+	//Dibujado de objeto
+	renderObject();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -552,29 +572,35 @@ void renderFunc()
 	glBindVertexArray(planeVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+	if (uLightPosPP != -1)
+	{
+		glm::vec3 lpos = (view * modelLight) * lightPos;
+		glUniform3fv(uLightPosPP, 1, &lpos[0]);
+	}
+		
+
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glutSwapBuffers();
 }
 
-void renderCube()
+void renderObject()
 {
-	glm::mat4 modelView = view * model;
-	glm::mat4 modelViewProj = proj * view * model;
+	glm::mat4 modelView = view * modelObject;
+	glm::mat4 modelViewProj = proj * view * modelObject;
 	glm::mat4 normal = glm::transpose(glm::inverse(modelView));
 
 	if (uModelViewMat != -1)
-		glUniformMatrix4fv(uModelViewMat, 1, GL_FALSE,
-			&(modelView[0][0]));
+		glUniformMatrix4fv(uModelViewMat, 1, GL_FALSE, &(modelView[0][0]));
+
 	if (uModelViewProjMat != -1)
-		glUniformMatrix4fv(uModelViewProjMat, 1, GL_FALSE,
-			&(modelViewProj[0][0]));
+		glUniformMatrix4fv(uModelViewProjMat, 1, GL_FALSE, &(modelViewProj[0][0]));
+
 	if (uNormalMat != -1)
-		glUniformMatrix4fv(uNormalMat, 1, GL_FALSE,
-			&(normal[0][0]));
+		glUniformMatrix4fv(uNormalMat, 1, GL_FALSE, &(normal[0][0]));
 
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, cubeNTriangleIndex * 3, GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, nVertexIndex, GL_UNSIGNED_INT, (void*)0);
 }
 
 void resizeFunc(int width, int height)
@@ -595,37 +621,27 @@ void idleFunc()
 		if (phi < M_2PI)
 		{
 			phi += 0.02f;
+			view = glm::rotate(view, 0.02f, glm::vec3(0, 1, 0));
 		}
 		else if (theta < M_2PI)
 		{
 			theta += 0.02f;
-			cameraUp = glm::vec4(cameraUp, 0) * glm::rotate(glm::mat4(1), 0.02f, glm::vec3(1, 0, 0));
+			view = glm::rotate(view, 0.02f, glm::vec3(1, 0, 0));
+			
 		}
 		else
 		{
 			theta = 0.0f;
 			phi = 0.0f;
 		}
-
-		setCamPosition();
 	}
 	
 	glutPostRedisplay();
 }
 
-void setCamPosition()
-{
-	cameraPos.x = radius * glm::sin(theta) * glm::cos(phi);
-	cameraPos.y = radius * glm::sin(theta) * glm::sin(phi);
-	cameraPos.z = radius * glm::cos(theta);
-
-	//std::cout << cameraPos.x << " " << cameraPos.y << " " << cameraPos.z << std::endl;
-
-	view = glm::lookAt(cameraPos, glm::vec3(0.0f), cameraUp);
-}
-
 void keyboardFunc(unsigned char key, int x, int y)
 {
+	glm::vec3 dir;
 	switch (key)
 	{
 	case(' '):
@@ -633,13 +649,17 @@ void keyboardFunc(unsigned char key, int x, int y)
 		break;
 	case('a'):
 	case('A'):
-		radius += 0.1f;
-		setCamPosition();
+		dir = -view[3];
+		view[3].x += dir.x * 0.1;
+		view[3].y += dir.y * 0.1;
+		view[3].z += dir.z * 0.1;
 		break;
 	case('s'):
 	case('S'):
-		radius -= 0.1f;
-		setCamPosition();
+		dir = view[3];
+		view[3].x += dir.x * 0.1;
+		view[3].y += dir.y * 0.1;
+		view[3].z += dir.z * 0.1;
 		break;
 
 	}
