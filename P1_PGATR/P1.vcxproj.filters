@@ -43,10 +43,19 @@
     <None Include="..\shaders\renderNormals.vert">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders\renderNormals .frag">
+    <None Include="..\shaders\renderNormals.geo">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders\renderNormals.geo">
+    <None Include="..\shaders\renderNormals.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\passTrough.geo">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\textLight.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\textLight.vert">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

@@ -107,13 +107,14 @@ unsigned int geometryProgram;
 int inPosGeo;
 int inNormalGeo;
 
-//Uniforms
-int uLightPosGeo;
+//Matrices Uniform
+int uModelViewMatGeo;
+int uModelViewProjMatGeo;
+int uNormalMatVGeo;
 
 //////////////////////////////////////////////////////////////
 // Datos que se almacenan en la memoria de la CPU
 //////////////////////////////////////////////////////////////
-
 
 //Matrices
 glm::mat4 proj = glm::mat4(1.0f);
@@ -121,7 +122,7 @@ glm::mat4 view = glm::mat4(1.0f);
 glm::mat4 modelObject = glm::mat4(1.0f);
 glm::mat4 modelLight = glm::mat4(1.0f);
 
-//Variable del modelo 
+//Variable del modelo
 unsigned int nVertexIndex;
 
 //Control de camara
@@ -134,7 +135,6 @@ float projNear, projFar;
 
 //Posicion de la luz
 glm::vec4 lightPos;
-
 
 //////////////////////////////////////////////////////////////
 // Funciones auxiliares
@@ -176,7 +176,7 @@ int main(int argc, char** argv)
 	initOGL();
 	initShaderFw("../shaders/fwRendering.vert", "../shaders/fwRendering.frag");
 	//initShaderPP("../shaders/postProcessing.vert", "../shaders/postProcessing.frag");
-	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderNormals.geo","../shaders/renderNormals.frag");
+	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderNormals.geo", "../shaders/renderNormals.frag");
 
 	initObj();
 	initPlane();
@@ -340,7 +340,7 @@ void initShaderFw(const char* vname, const char* fname)
 void initShaderGeo(const char* vname, const char* gname, const char* fname)
 {
 	geometryVShader = loadShader(vname, GL_VERTEX_SHADER);
-	geometryGShader = loadShader(vname, GL_GEOMETRY_SHADER);
+	geometryGShader = loadShader(gname, GL_GEOMETRY_SHADER);
 	geometryFShader = loadShader(fname, GL_FRAGMENT_SHADER);
 
 	geometryProgram = glCreateProgram();
@@ -368,11 +368,15 @@ void initShaderGeo(const char* vname, const char* gname, const char* fname)
 
 		glDeleteProgram(geometryProgram);
 		geometryProgram = 0;
-		exit(-1);
+		//exit(-1);
 	}
 
-	inPosGeo = glGetUniformLocation(geometryProgram, "inPos");
-	inNormalGeo = glGetUniformLocation(geometryProgram, "inNormal");
+	inPosGeo = glGetAttribLocation(geometryProgram, "inPos");
+	inNormalGeo = glGetAttribLocation(geometryProgram, "inNormal");
+
+	uNormalMatVGeo = glGetUniformLocation(geometryProgram, "normal");
+	uModelViewMatGeo = glGetUniformLocation(geometryProgram, "modelView");
+	uModelViewProjMatGeo = glGetUniformLocation(geometryProgram, "modelViewProj");
 }
 
 void initShaderPP(const char* vname, const char* fname)
@@ -438,7 +442,7 @@ void initObj()
 	std::vector< glm::vec2 > uvs;
 	std::vector< glm::vec3 > normals;
 	std::vector <unsigned int> indexes;
-	
+
 	bool res = loadOBJ("../models/teapot.obj", vertexes, uvs, normals, indexes);
 	unsigned int nVertex = vertexes.size();
 	nVertexIndex = indexes.size();
@@ -608,49 +612,46 @@ void renderFunc()
 	renderObject();
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	/*
+		//////////
+		//Post-procesing
+		///////////
+		glUseProgram(postProccesProgram);
+
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+
+		//Establecimiento de los distintos bufferes para el post-procesado
+		glActiveTexture(GL_TEXTURE0 + 0);
+		glBindTexture(GL_TEXTURE_2D, colorBuffTexId);
+
+		glActiveTexture(GL_TEXTURE0 + 1);
+		glBindTexture(GL_TEXTURE_2D, vertexBuffTexId);
+
+		glActiveTexture(GL_TEXTURE0 + 2);
+		glBindTexture(GL_TEXTURE_2D, normalBuffTexId);
+
+		glActiveTexture(GL_TEXTURE0 + 3);
+		glBindTexture(GL_TEXTURE_2D, emiBuffTexId);
+
+		glActiveTexture(GL_TEXTURE0 + 4);
+		glBindTexture(GL_TEXTURE_2D, depthBuffTexId);
+
+		glBindVertexArray(planeVAO);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		if (uLightPosPP != -1)
+		{
+			glm::vec3 lpos = (view * modelLight) * lightPos;
+			glUniform3fv(uLightPosPP, 1, &lpos[0]);
+		}
+
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);*/
 
 	glUseProgram(geometryProgram);
 
 	renderObject();
-
-	/*
-	///////////
-	//Post-procesing
-	///////////
-	glUseProgram(postProccesProgram);
-
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-
-	//Establecimiento de los distintos bufferes para el post-procesado
-	glActiveTexture(GL_TEXTURE0 + 0);
-	glBindTexture(GL_TEXTURE_2D, colorBuffTexId);
-
-	glActiveTexture(GL_TEXTURE0 + 1);
-	glBindTexture(GL_TEXTURE_2D, vertexBuffTexId);
-
-	glActiveTexture(GL_TEXTURE0 + 2);
-	glBindTexture(GL_TEXTURE_2D, normalBuffTexId);
-
-	glActiveTexture(GL_TEXTURE0 + 3);
-	glBindTexture(GL_TEXTURE_2D, emiBuffTexId);
-
-	glActiveTexture(GL_TEXTURE0 + 4);
-	glBindTexture(GL_TEXTURE_2D, depthBuffTexId);
-
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	if (uLightPosPP != -1)
-	{
-		glm::vec3 lpos = (view * modelLight) * lightPos;
-		glUniform3fv(uLightPosPP, 1, &lpos[0]);
-	}
-		
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	*/
-
 
 	glutSwapBuffers();
 }
@@ -669,6 +670,15 @@ void renderObject()
 
 	if (uNormalMat != -1)
 		glUniformMatrix4fv(uNormalMat, 1, GL_FALSE, &(normal[0][0]));
+
+	if (uModelViewMatGeo != -1)
+		glUniformMatrix4fv(uModelViewMatGeo, 1, GL_FALSE, &(modelView[0][0]));
+
+	if (uModelViewProjMatGeo != -1)
+		glUniformMatrix4fv(uModelViewProjMatGeo, 1, GL_FALSE, &(modelViewProj[0][0]));
+
+	if (uNormalMatVGeo != -1)
+		glUniformMatrix4fv(uNormalMatVGeo, 1, GL_FALSE, &(normal[0][0]));
 
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, nVertexIndex, GL_UNSIGNED_INT, (void*)0);
@@ -698,7 +708,6 @@ void idleFunc()
 		{
 			theta += 0.02f;
 			view = glm::rotate(view, 0.02f, glm::vec3(1, 0, 0));
-			
 		}
 		else
 		{
@@ -706,7 +715,7 @@ void idleFunc()
 			phi = 0.0f;
 		}
 	}
-	
+
 	glutPostRedisplay();
 }
 
@@ -732,13 +741,11 @@ void keyboardFunc(unsigned char key, int x, int y)
 		view[3].y += dir.y * 0.1;
 		view[3].z += dir.z * 0.1;
 		break;
-
 	}
 }
 
 void mouseFunc(int button, int state, int x, int y)
 {
-
 }
 
 void initFBO()
