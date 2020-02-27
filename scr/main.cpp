@@ -2,8 +2,6 @@
 #include "auxiliar.h"
 #include "PLANE.h"
 
-//Can this work?
-
 #include <gl/glew.h>
 #define SOLVE_FGLUT_WARNING
 #include <gl/freeglut.h>
@@ -96,6 +94,22 @@ unsigned int uNormalTexPP;
 unsigned int uDepthTexPP;
 unsigned int uEmiTexPP;
 
+////////////////////
+//Geometry
+///////////////////
+
+unsigned int geometryVShader;
+unsigned int geometryGShader;
+unsigned int geometryFShader;
+unsigned int geometryProgram;
+
+//Atributos
+int inPosGeo;
+int inNormalGeo;
+
+//Uniforms
+int uLightPosGeo;
+
 //////////////////////////////////////////////////////////////
 // Datos que se almacenan en la memoria de la CPU
 //////////////////////////////////////////////////////////////
@@ -140,6 +154,7 @@ void initContext(int argc, char** argv);
 void initOGL();
 void initShaderFw(const char* vname, const char* fname);
 void initShaderPP(const char* vname, const char* fname);
+void initShaderGeo(const char* vname, const char* gname, const char* fname);
 void initObj();
 void initPlane();
 void initFBO();
@@ -160,7 +175,8 @@ int main(int argc, char** argv)
 	initContext(argc, argv);
 	initOGL();
 	initShaderFw("../shaders/fwRendering.vert", "../shaders/fwRendering.frag");
-	initShaderPP("../shaders/postProcessing.vert", "../shaders/postProcessing.frag");
+	//initShaderPP("../shaders/postProcessing.vert", "../shaders/postProcessing.frag");
+	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderNormals.geo","../shaders/renderNormals.frag");
 
 	initObj();
 	initPlane();
@@ -244,6 +260,14 @@ void destroy()
 	glDeleteShader(postProccesFShader);
 	glDeleteProgram(postProccesProgram);
 
+	glDetachShader(geometryProgram, geometryVShader);
+	glDetachShader(geometryProgram, geometryFShader);
+	glDetachShader(geometryProgram, geometryGShader);
+	glDeleteShader(geometryVShader);
+	glDeleteShader(geometryFShader);
+	glDeleteShader(geometryGShader);
+	glDeleteProgram(geometryProgram);
+
 	if (inPos != -1) glDeleteBuffers(1, &posVBO);
 	if (inColor != -1) glDeleteBuffers(1, &colorVBO);
 	if (inNormal != -1) glDeleteBuffers(1, &normalVBO);
@@ -311,6 +335,44 @@ void initShaderFw(const char* vname, const char* fname)
 	inColor = glGetAttribLocation(forwardProgram, "inColor");
 	inNormal = glGetAttribLocation(forwardProgram, "inNormal");
 	inTexCoord = glGetAttribLocation(forwardProgram, "inTexCoord");
+}
+
+void initShaderGeo(const char* vname, const char* gname, const char* fname)
+{
+	geometryVShader = loadShader(vname, GL_VERTEX_SHADER);
+	geometryGShader = loadShader(vname, GL_GEOMETRY_SHADER);
+	geometryFShader = loadShader(fname, GL_FRAGMENT_SHADER);
+
+	geometryProgram = glCreateProgram();
+	glAttachShader(geometryProgram, geometryVShader);
+	glAttachShader(geometryProgram, geometryGShader);
+	glAttachShader(geometryProgram, geometryFShader);
+
+	glBindAttribLocation(geometryProgram, 0, "inPos");
+	glBindAttribLocation(geometryProgram, 1, "inNormal");
+
+	glLinkProgram(geometryProgram);
+
+	int linked;
+	glGetProgramiv(geometryProgram, GL_LINK_STATUS, &linked);
+	if (!linked)
+	{
+		//Calculamos una cadena de error
+		GLint logLen;
+		glGetProgramiv(geometryProgram, GL_INFO_LOG_LENGTH, &logLen);
+
+		char* logString = new char[logLen];
+		glGetProgramInfoLog(geometryProgram, logLen, NULL, logString);
+		std::cout << "Error: " << logString << std::endl;
+		delete[] logString;
+
+		glDeleteProgram(geometryProgram);
+		geometryProgram = 0;
+		exit(-1);
+	}
+
+	inPosGeo = glGetUniformLocation(geometryProgram, "inPos");
+	inNormalGeo = glGetUniformLocation(geometryProgram, "inNormal");
 }
 
 void initShaderPP(const char* vname, const char* fname)
@@ -545,8 +607,13 @@ void renderFunc()
 	//Dibujado de objeto
 	renderObject();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	glUseProgram(geometryProgram);
+
+	renderObject();
+
+	/*
 	///////////
 	//Post-procesing
 	///////////
@@ -580,9 +647,11 @@ void renderFunc()
 		glUniform3fv(uLightPosPP, 1, &lpos[0]);
 	}
 		
-
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
+	*/
+
+
 	glutSwapBuffers();
 }
 

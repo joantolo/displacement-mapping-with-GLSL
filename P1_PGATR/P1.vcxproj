@@ -24,6 +24,9 @@
     <None Include="..\shaders\fwRendering.vert" />
     <None Include="..\shaders\postProcessing.frag" />
     <None Include="..\shaders\postProcessing.vert" />
+    <None Include="..\shaders\renderNormals .frag" />
+    <None Include="..\shaders\renderNormals.geo" />
+    <None Include="..\shaders\renderNormals.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>P1</ProjectName>
