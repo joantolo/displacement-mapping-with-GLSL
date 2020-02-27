@@ -13,7 +13,6 @@ in vec2 texCoord;
 uniform sampler2D colorTex;
 uniform sampler2D emiTex;
 
-
 void main()
 {
 	outPosVertex = vec4(pos.xyz, 1);

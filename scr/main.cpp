@@ -174,7 +174,7 @@ int main(int argc, char** argv)
 
 	initContext(argc, argv);
 	initOGL();
-	initShaderFw("../shaders/fwRendering.vert", "../shaders/fwRendering.frag");
+	//initShaderFw("../shaders/fwRendering.vert", "../shaders/fwRendering.frag");
 	//initShaderPP("../shaders/postProcessing.vert", "../shaders/postProcessing.frag");
 	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderNormals.geo", "../shaders/renderNormals.frag");
 
@@ -368,15 +368,15 @@ void initShaderGeo(const char* vname, const char* gname, const char* fname)
 
 		glDeleteProgram(geometryProgram);
 		geometryProgram = 0;
-		//exit(-1);
+		exit(-1);
 	}
-
-	inPosGeo = glGetAttribLocation(geometryProgram, "inPos");
-	inNormalGeo = glGetAttribLocation(geometryProgram, "inNormal");
 
 	uNormalMatVGeo = glGetUniformLocation(geometryProgram, "normal");
 	uModelViewMatGeo = glGetUniformLocation(geometryProgram, "modelView");
 	uModelViewProjMatGeo = glGetUniformLocation(geometryProgram, "modelViewProj");
+
+	inPosGeo = glGetAttribLocation(geometryProgram, "inPos");
+	inNormalGeo = glGetAttribLocation(geometryProgram, "inNormal");
 }
 
 void initShaderPP(const char* vname, const char* fname)
@@ -611,43 +611,43 @@ void renderFunc()
 	//Dibujado de objeto
 	renderObject();
 
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	/*
-		//////////
-		//Post-procesing
-		///////////
-		glUseProgram(postProccesProgram);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_TEST);
+	//////////
+	//Post-procesing
+	///////////
+	glUseProgram(postProccesProgram);
 
-		//Establecimiento de los distintos bufferes para el post-procesado
-		glActiveTexture(GL_TEXTURE0 + 0);
-		glBindTexture(GL_TEXTURE_2D, colorBuffTexId);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
 
-		glActiveTexture(GL_TEXTURE0 + 1);
-		glBindTexture(GL_TEXTURE_2D, vertexBuffTexId);
+	//Establecimiento de los distintos bufferes para el post-procesado
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, colorBuffTexId);
 
-		glActiveTexture(GL_TEXTURE0 + 2);
-		glBindTexture(GL_TEXTURE_2D, normalBuffTexId);
+	glActiveTexture(GL_TEXTURE0 + 1);
+	glBindTexture(GL_TEXTURE_2D, vertexBuffTexId);
 
-		glActiveTexture(GL_TEXTURE0 + 3);
-		glBindTexture(GL_TEXTURE_2D, emiBuffTexId);
+	glActiveTexture(GL_TEXTURE0 + 2);
+	glBindTexture(GL_TEXTURE_2D, normalBuffTexId);
 
-		glActiveTexture(GL_TEXTURE0 + 4);
-		glBindTexture(GL_TEXTURE_2D, depthBuffTexId);
+	glActiveTexture(GL_TEXTURE0 + 3);
+	glBindTexture(GL_TEXTURE_2D, emiBuffTexId);
 
-		glBindVertexArray(planeVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glActiveTexture(GL_TEXTURE0 + 4);
+	glBindTexture(GL_TEXTURE_2D, depthBuffTexId);
 
-		if (uLightPosPP != -1)
-		{
-			glm::vec3 lpos = (view * modelLight) * lightPos;
-			glUniform3fv(uLightPosPP, 1, &lpos[0]);
-		}
+	glBindVertexArray(planeVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);*/
+	if (uLightPosPP != -1)
+	{
+		glm::vec3 lpos = (view * modelLight) * lightPos;
+		glUniform3fv(uLightPosPP, 1, &lpos[0]);
+	}
+
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 
 	glUseProgram(geometryProgram);
 
