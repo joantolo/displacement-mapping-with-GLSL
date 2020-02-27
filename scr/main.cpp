@@ -2,6 +2,8 @@
 #include "auxiliar.h"
 #include "PLANE.h"
 
+//Can this work?
+
 #include <gl/glew.h>
 #define SOLVE_FGLUT_WARNING
 #include <gl/freeglut.h>
