@@ -11,6 +11,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\shaders\fwRendering.frag" />
+    <None Include="..\shaders\fwRendering.vert" />
+    <None Include="..\shaders\passTrough.geo" />
+    <None Include="..\shaders\postProcessing.frag" />
+    <None Include="..\shaders\postProcessing.vert" />
+    <None Include="..\shaders\renderNormals.frag" />
+    <None Include="..\shaders\renderNormals.vert" />
+    <None Include="..\shaders\renderNormalsByTriangle.geo" />
+    <None Include="..\shaders\renderNormalsByVertex.geo" />
+    <None Include="..\shaders\textLight.frag" />
+    <None Include="..\shaders\textLight.vert" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="..\scr\auxiliar.cpp" />
     <ClCompile Include="..\scr\main.cpp" />
   </ItemGroup>
@@ -18,18 +31,6 @@
     <ClInclude Include="..\scr\auxiliar.h" />
     <ClInclude Include="..\scr\BOX.h" />
     <ClInclude Include="..\scr\PLANE.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\shaders\fwRendering.frag" />
-    <None Include="..\shaders\fwRendering.vert" />
-    <None Include="..\shaders\passTrough.geo" />
-    <None Include="..\shaders\postProcessing.frag" />
-    <None Include="..\shaders\postProcessing.vert" />
-    <None Include="..\shaders\renderNormals.frag" />
-    <None Include="..\shaders\renderNormals.geo" />
-    <None Include="..\shaders\renderNormals.vert" />
-    <None Include="..\shaders\textLight.frag" />
-    <None Include="..\shaders\textLight.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>P1</ProjectName>

@@ -176,7 +176,7 @@ int main(int argc, char** argv)
 	initOGL();
 	initShaderFw("../shaders/fwRendering.vert", "../shaders/fwRendering.frag");
 	//initShaderPP("../shaders/postProcessing.vert", "../shaders/postProcessing.frag");
-	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderNormals.geo", "../shaders/renderNormals.frag");
+	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderNormalsByTriangle.geo", "../shaders/renderNormals.frag");
 
 	initObj();
 	initPlane();
@@ -347,11 +347,6 @@ void initShaderGeo(const char* vname, const char* gname, const char* fname)
 	glAttachShader(geometryProgram, geometryVShader);
 	glAttachShader(geometryProgram, geometryGShader);
 	glAttachShader(geometryProgram, geometryFShader);
-
-	/*glBindAttribLocation(geometryProgram, 0, "inPos");
-	glBindAttribLocation(geometryProgram, 1, "inColor");
-	glBindAttribLocation(geometryProgram, 2, "inNormal");
-	glBindAttribLocation(geometryProgram, 3, "inTexCoord");*/
 
 	glLinkProgram(geometryProgram);
 
@@ -615,44 +610,6 @@ void renderFunc()
 
 	//Dibujado de objeto
 	renderObject();
-
-	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	//////////
-	//Post-procesing
-	///////////
-	glUseProgram(postProccesProgram);
-
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-
-	//Establecimiento de los distintos bufferes para el post-procesado
-	glActiveTexture(GL_TEXTURE0 + 0);
-	glBindTexture(GL_TEXTURE_2D, colorBuffTexId);
-
-	glActiveTexture(GL_TEXTURE0 + 1);
-	glBindTexture(GL_TEXTURE_2D, vertexBuffTexId);
-
-	glActiveTexture(GL_TEXTURE0 + 2);
-	glBindTexture(GL_TEXTURE_2D, normalBuffTexId);
-
-	glActiveTexture(GL_TEXTURE0 + 3);
-	glBindTexture(GL_TEXTURE_2D, emiBuffTexId);
-
-	glActiveTexture(GL_TEXTURE0 + 4);
-	glBindTexture(GL_TEXTURE_2D, depthBuffTexId);
-
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	if (uLightPosPP != -1)
-	{
-		glm::vec3 lpos = (view * modelLight) * lightPos;
-		glUniform3fv(uLightPosPP, 1, &lpos[0]);
-	}
-
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);*/
 
 	glUseProgram(geometryProgram);
 
