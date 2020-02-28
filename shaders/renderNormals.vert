@@ -1,7 +1,9 @@
 #version 330 core
 
-in vec3 inPos;
-in vec3 inNormal;
+layout(location = 0) in vec3 inPos;	
+layout(location = 1)in vec3 inColor;
+layout(location = 2)in vec3 inNormal;
+layout(location = 3)in vec2 inTexCoord;
 
 uniform mat4 normal;
 uniform mat4 modelView;
@@ -9,15 +11,13 @@ uniform mat4 modelViewProj;
 
 out vec3 pos;
 out vec3 norm;
-
-out VS_OUT {
-    vec3 normal;
-} vs_out;
-
-
+out vec3 color;
+out vec2 texCoord;
 
 void main()
 {
+	color = vec3(1,1,0);
+	texCoord = inTexCoord;
 	norm = (normal * vec4(inNormal, 0.0)).xyz;
 	pos = (modelView * vec4(inPos, 1.0)).xyz;
 

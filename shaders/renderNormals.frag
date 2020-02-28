@@ -1,7 +1,10 @@
 #version 330 core
 
-in vec3 inPos;
-in vec3 inNormal;
+layout(location = 0) out vec4 outColor;
+
+in vec3 fcolor;
+in vec4 fnorm;
+in vec2 ftexCoord;
 
 uniform mat4 normal;
 uniform mat4 modelView;
@@ -11,5 +14,5 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+outColor =  vec4(fcolor,1.0);
 }  
