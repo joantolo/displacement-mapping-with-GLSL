@@ -21,6 +21,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shaders\fwRendering.frag" />
+    <None Include="..\shaders\fwRendering.quads.tesc" />
+    <None Include="..\shaders\fwRendering.quads.tese" />
+    <None Include="..\shaders\fwRendering.trian.tesc" />
+    <None Include="..\shaders\fwRendering.trian.tese" />
     <None Include="..\shaders\fwRendering.vert" />
     <None Include="..\shaders\postProcessing.frag" />
     <None Include="..\shaders\postProcessing.vert" />

@@ -46,6 +46,8 @@ unsigned int planeVertexVBO;
 ///////////
 unsigned int forwardVShader;
 unsigned int forwardFShader;
+unsigned int forwardTCShader;
+unsigned int forwardTEShader;
 unsigned int forwardProgram;
 
 //Atributos
@@ -67,6 +69,11 @@ unsigned int emiTexId;
 int uColorTex;
 int uEmiTex;
 
+//Variables uniform
+int uOuterLevel, uInnerLevel;
+int uDisplacement;
+
+
 ///////////
 //Post-proceso
 ///////////
@@ -77,7 +84,7 @@ unsigned int postProccesProgram;
 //Atributos
 int inPosPP;
 
-//Uniforms
+//Variables uniform
 int uLightPosPP;
 
 //Identificadores de texturas Post-proceso
@@ -119,6 +126,10 @@ float projNear, projFar;
 //Posicion de la luz
 glm::vec4 lightPos;
 
+//Control de teselation
+int outerLevel, innerLevel;
+bool applyDisplacement;
+
 
 //////////////////////////////////////////////////////////////
 // Funciones auxiliares
@@ -136,9 +147,9 @@ void renderObject();
 //Funciones de inicialización y destrucción
 void initContext(int argc, char** argv);
 void initOGL();
-void initShaderFw(const char* vname, const char* fname);
+void initShaderFw(const char* vname, const char* fname, const char* tcname, const char* tename);
 void initShaderPP(const char* vname, const char* fname);
-void initObj();
+void initObj(const char* filename);
 void initPlane();
 void initFBO();
 void destroy();
@@ -157,10 +168,10 @@ int main(int argc, char** argv)
 
 	initContext(argc, argv);
 	initOGL();
-	initShaderFw("../shaders/fwRendering.vert", "../shaders/fwRendering.frag");
+	initShaderFw("../shaders/fwRendering.vert", "../shaders/fwRendering.frag", "../shaders/fwRendering.trian.tesc", "../shaders/fwRendering.trian.tese");
 	initShaderPP("../shaders/postProcessing.vert", "../shaders/postProcessing.frag");
 
-	initObj();
+	initObj("../models/teapot.obj");
 	initPlane();
 
 	initFBO();
@@ -226,14 +237,23 @@ void initOGL()
 	//Inicializamos la cámara
 	view = glm::lookAt(glm::vec3(0, 0, 40), glm::vec3(0), glm::vec3(0, 1, 0));
 	moveCam = false;
+
+	//Establecemos los niveles de subdivisión para teselación
+	outerLevel = 5;
+	innerLevel = 4;
+	applyDisplacement = true;
 }
 
 void destroy()
 {
 	glDetachShader(forwardProgram, forwardVShader);
 	glDetachShader(forwardProgram, forwardFShader);
+	glDetachShader(forwardProgram, forwardTCShader);
+	glDetachShader(forwardProgram, forwardTEShader);
 	glDeleteShader(forwardVShader);
 	glDeleteShader(forwardFShader);
+	glDeleteShader(forwardTCShader);
+	glDeleteShader(forwardTEShader);
 	glDeleteProgram(forwardProgram);
 
 	glDetachShader(postProccesProgram, postProccesVShader);
@@ -264,14 +284,18 @@ void destroy()
 	glDeleteTextures(1, &normalBuffTexId);
 }
 
-void initShaderFw(const char* vname, const char* fname)
+void initShaderFw(const char* vname, const char* fname, const char* tcname, const char* tename)
 {
 	forwardVShader = loadShader(vname, GL_VERTEX_SHADER);
 	forwardFShader = loadShader(fname, GL_FRAGMENT_SHADER);
+	forwardTCShader = loadShader(tcname, GL_TESS_CONTROL_SHADER);
+	forwardTEShader = loadShader(tename, GL_TESS_EVALUATION_SHADER);
 
 	forwardProgram = glCreateProgram();
 	glAttachShader(forwardProgram, forwardVShader);
 	glAttachShader(forwardProgram, forwardFShader);
+	glAttachShader(forwardProgram, forwardTCShader);
+	glAttachShader(forwardProgram, forwardTEShader);
 
 	glBindAttribLocation(forwardProgram, 0, "inPos");
 	glBindAttribLocation(forwardProgram, 1, "inColor");
@@ -298,6 +322,11 @@ void initShaderFw(const char* vname, const char* fname)
 		exit(-1);
 	}
 
+	inPos = glGetAttribLocation(forwardProgram, "inPos");
+	inColor = glGetAttribLocation(forwardProgram, "inColor");
+	inNormal = glGetAttribLocation(forwardProgram, "inNormal");
+	inTexCoord = glGetAttribLocation(forwardProgram, "inTexCoord");
+
 	uNormalMat = glGetUniformLocation(forwardProgram, "normal");
 	uModelViewMat = glGetUniformLocation(forwardProgram, "modelView");
 	uModelViewProjMat = glGetUniformLocation(forwardProgram, "modelViewProj");
@@ -305,10 +334,9 @@ void initShaderFw(const char* vname, const char* fname)
 	uColorTex = glGetUniformLocation(forwardProgram, "colorTex");
 	uEmiTex = glGetUniformLocation(forwardProgram, "emiTex");
 
-	inPos = glGetAttribLocation(forwardProgram, "inPos");
-	inColor = glGetAttribLocation(forwardProgram, "inColor");
-	inNormal = glGetAttribLocation(forwardProgram, "inNormal");
-	inTexCoord = glGetAttribLocation(forwardProgram, "inTexCoord");
+	uOuterLevel = glGetUniformLocation(forwardProgram, "outerLevel");
+	uInnerLevel = glGetUniformLocation(forwardProgram, "innerLevel");
+	uDisplacement = glGetUniformLocation(forwardProgram, "applyDisplacement");
 }
 
 void initShaderPP(const char* vname, const char* fname)
@@ -367,7 +395,7 @@ void initShaderPP(const char* vname, const char* fname)
 	uLightPosPP = glGetUniformLocation(postProccesProgram, "lpos");
 }
 
-void initObj()
+void initObj(const char* filename)
 {
 	// Read our .obj file
 	std::vector< glm::vec3 > vertexes;
@@ -375,7 +403,7 @@ void initObj()
 	std::vector< glm::vec3 > normals;
 	std::vector <unsigned int> indexes;
 	
-	bool res = loadOBJ("../models/teapot.obj", vertexes, uvs, normals, indexes);
+	bool res = loadOBJ(filename, vertexes, uvs, normals, indexes);
 	unsigned int nVertex = vertexes.size();
 	nVertexIndex = indexes.size();
 
@@ -430,9 +458,13 @@ void initObj()
 		nVertexIndex * sizeof(unsigned int), &indexes[0],
 		GL_STATIC_DRAW);
 
+	//Para los shaders de tesselacion
+	//glPatchParameteri(GL_PATCH_VERTICES, 4); //Caso de quads
+	glPatchParameteri(GL_PATCH_VERTICES, 3); //Caso de triangulos
+
 	modelObject = glm::mat4(1.0f);
 
-	colorTexId = loadTex("../img/color2.png");
+	colorTexId = loadTex("../img/map_tex.png");
 	emiTexId = loadTex("../img/emissive.png");
 }
 
@@ -518,6 +550,7 @@ unsigned int loadTex(const char* fileName)
 void renderFunc()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	///////////
@@ -540,14 +573,24 @@ void renderFunc()
 		glUniform1i(uEmiTex, 1);
 	}
 
+	if(uOuterLevel != -1)
+		glUniform1i(uOuterLevel, outerLevel);
+
+	if (uInnerLevel != -1)
+		glUniform1i(uInnerLevel, innerLevel);
+
+	if (uDisplacement != -1)
+		glUniform1i(uDisplacement, applyDisplacement);
+
 	//Dibujado de objeto
 	renderObject();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	///////////
 	//Post-procesing
 	///////////
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	glUseProgram(postProccesProgram);
 
 	glDisable(GL_CULL_FACE);
@@ -581,6 +624,7 @@ void renderFunc()
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
+
 	glutSwapBuffers();
 }
 
@@ -600,7 +644,9 @@ void renderObject()
 		glUniformMatrix4fv(uNormalMat, 1, GL_FALSE, &(normal[0][0]));
 
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, nVertexIndex, GL_UNSIGNED_INT, (void*)0);
+
+	//glDrawElements(GL_TRIANGLES, nVertexIndex, GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_PATCHES, nVertexIndex, GL_UNSIGNED_INT, (void*)0);
 }
 
 void resizeFunc(int width, int height)
@@ -661,7 +707,22 @@ void keyboardFunc(unsigned char key, int x, int y)
 		view[3].y += dir.y * 0.1;
 		view[3].z += dir.z * 0.1;
 		break;
-
+	case('1'):
+		innerLevel = glm::min(12, innerLevel + 1);
+		break;
+	case('2'):
+		innerLevel = glm::max(3, innerLevel - 1);
+		break;
+	case('3'):
+		outerLevel = glm::min(12, outerLevel + 1);
+		break;
+	case('4'):
+		outerLevel = glm::max(3, outerLevel - 1);
+		break;
+	case('q'):
+	case('Q'):
+		applyDisplacement = !applyDisplacement;
+		break;
 	}
 }
 
