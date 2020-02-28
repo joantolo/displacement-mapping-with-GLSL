@@ -110,7 +110,7 @@ int inNormalGeo;
 //Matrices Uniform
 int uModelViewMatGeo;
 int uModelViewProjMatGeo;
-int uNormalMatVGeo;
+int uNormalMatGeo;
 
 //////////////////////////////////////////////////////////////
 // Datos que se almacenan en la memoria de la CPU
@@ -348,10 +348,10 @@ void initShaderGeo(const char* vname, const char* gname, const char* fname)
 	glAttachShader(geometryProgram, geometryGShader);
 	glAttachShader(geometryProgram, geometryFShader);
 
-	glBindAttribLocation(geometryProgram, 0, "inPos");
+	/*glBindAttribLocation(geometryProgram, 0, "inPos");
 	glBindAttribLocation(geometryProgram, 1, "inColor");
 	glBindAttribLocation(geometryProgram, 2, "inNormal");
-	glBindAttribLocation(geometryProgram, 3, "inTexCoord");
+	glBindAttribLocation(geometryProgram, 3, "inTexCoord");*/
 
 	glLinkProgram(geometryProgram);
 
@@ -373,17 +373,15 @@ void initShaderGeo(const char* vname, const char* gname, const char* fname)
 		exit(-1);
 	}
 
-	uNormalMat = glGetUniformLocation(geometryProgram, "normal");
-	uModelViewMat = glGetUniformLocation(geometryProgram, "modelView");
-	uModelViewProjMat = glGetUniformLocation(geometryProgram, "modelViewProj");
+	uNormalMatGeo = glGetUniformLocation(geometryProgram, "normal");
+	uModelViewMatGeo = glGetUniformLocation(geometryProgram, "modelView");
+	uModelViewProjMatGeo = glGetUniformLocation(geometryProgram, "modelViewProj");
 
-	uColorTex = glGetUniformLocation(geometryProgram, "colorTex");
-	uEmiTex = glGetUniformLocation(geometryProgram, "emiTex");
+	/*uColorTex = glGetUniformLocation(geometryProgram, "colorTex");
+	uEmiTex = glGetUniformLocation(geometryProgram, "emiTex");*/
 
-	inPos = glGetAttribLocation(geometryProgram, "inPos");
-	inColor = glGetAttribLocation(geometryProgram, "inColor");
-	inNormal = glGetAttribLocation(geometryProgram, "inNormal");
-	inTexCoord = glGetAttribLocation(geometryProgram, "inTexCoord");
+	inPosGeo = glGetAttribLocation(geometryProgram, "inPos");
+	inNormalGeo = glGetAttribLocation(geometryProgram, "inNormal");
 }
 
 void initShaderPP(const char* vname, const char* fname)
@@ -656,9 +654,9 @@ void renderFunc()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);*/
 
-	/*glUseProgram(geometryProgram);
+	glUseProgram(geometryProgram);
 
-	renderObject();*/
+	renderObject();
 
 	glutSwapBuffers();
 }
@@ -678,14 +676,14 @@ void renderObject()
 	if (uNormalMat != -1)
 		glUniformMatrix4fv(uNormalMat, 1, GL_FALSE, &(normal[0][0]));
 
-	/*if (uModelViewMatGeo != -1)
+	if (uModelViewMatGeo != -1)
 		glUniformMatrix4fv(uModelViewMatGeo, 1, GL_FALSE, &(modelView[0][0]));
 
 	if (uModelViewProjMatGeo != -1)
 		glUniformMatrix4fv(uModelViewProjMatGeo, 1, GL_FALSE, &(modelViewProj[0][0]));
 
-	if (uNormalMatVGeo != -1)
-		glUniformMatrix4fv(uNormalMatVGeo, 1, GL_FALSE, &(normal[0][0]));*/
+	if (uNormalMatGeo != -1)
+		glUniformMatrix4fv(uNormalMatGeo, 1, GL_FALSE, &(normal[0][0]));
 
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, nVertexIndex, GL_UNSIGNED_INT, (void*)0);

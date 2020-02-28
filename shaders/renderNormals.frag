@@ -10,9 +10,8 @@ uniform mat4 normal;
 uniform mat4 modelView;
 uniform mat4 modelViewProj;
 
-out vec4 FragColor;
 
 void main()
 {
-outColor =  vec4(fcolor,1.0);
+  outColor =  vec4(fcolor,1.0);
 }  
