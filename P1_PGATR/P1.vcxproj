@@ -20,6 +20,8 @@
     <None Include="..\shaders\renderNormals.vert" />
     <None Include="..\shaders\renderNormalsByTriangle.geo" />
     <None Include="..\shaders\renderNormalsByVertex.geo" />
+    <None Include="..\shaders\renderPoints.geo" />
+    <None Include="..\shaders\renderWireframe.geo" />
     <None Include="..\shaders\textLight.frag" />
     <None Include="..\shaders\textLight.vert" />
   </ItemGroup>
