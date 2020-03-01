@@ -12,18 +12,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shaders\fwRendering.frag" />
+    <None Include="..\shaders\fwRendering.quads.tesc" />
+    <None Include="..\shaders\fwRendering.quads.tese" />
+    <None Include="..\shaders\fwRendering.trian.tesc" />
+    <None Include="..\shaders\fwRendering.trian.tese" />
     <None Include="..\shaders\fwRendering.vert" />
-    <None Include="..\shaders\passTrough.geo" />
+    <None Include="..\shaders\passTrough.geom" />
     <None Include="..\shaders\postProcessing.frag" />
     <None Include="..\shaders\postProcessing.vert" />
     <None Include="..\shaders\renderNormals.frag" />
     <None Include="..\shaders\renderNormals.vert" />
-    <None Include="..\shaders\renderNormalsByTriangle.geo" />
-    <None Include="..\shaders\renderNormalsByVertex.geo" />
-    <None Include="..\shaders\renderPoints.geo" />
-    <None Include="..\shaders\renderWireframe.geo" />
-    <None Include="..\shaders\textLight.frag" />
-    <None Include="..\shaders\textLight.vert" />
+    <None Include="..\shaders\renderNormalsByTriangle.geom" />
+    <None Include="..\shaders\renderNormalsByVertex.geom" />
+    <None Include="..\shaders\renderPoints.geom" />
+    <None Include="..\shaders\renderWireframe.geom" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\scr\auxiliar.cpp" />

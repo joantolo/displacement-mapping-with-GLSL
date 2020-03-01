@@ -169,7 +169,6 @@ void initPlane();
 void initFBO();
 void destroy();
 void resizeFBO(unsigned int w, unsigned int h);
-void calculateLOD(glm::vec4 cameraPos);
 
 //Carga el shader indicado, devuele el ID del shader
 GLuint loadShader(const char* fileName, GLenum type);
@@ -186,7 +185,7 @@ int main(int argc, char** argv)
 	initOGL();
 
 	initShaderFw("../shaders/fwRendering.vert", "../shaders/fwRendering.frag", "../shaders/fwRendering.trian.tesc", "../shaders/fwRendering.trian.tese");
-	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderWireframe.geom", "../shaders/renderNormals.frag");
+	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderWireframe.geo", "../shaders/renderNormals.frag");
 	initShaderPP("../shaders/postProcessing.vert", "../shaders/postProcessing.frag");
 
 	initObj("../models/teapot.obj");
@@ -780,7 +779,6 @@ void keyboardFunc(unsigned char key, int x, int y)
 		view[3].x += dir.x * 0.1;
 		view[3].y += dir.y * 0.1;
 		view[3].z += dir.z * 0.1;
-		calculateLOD(view[3]);
 		break;
 	case('s'):
 	case('S'):
@@ -788,7 +786,6 @@ void keyboardFunc(unsigned char key, int x, int y)
 		view[3].x += dir.x * 0.1;
 		view[3].y += dir.y * 0.1;
 		view[3].z += dir.z * 0.1;
-		calculateLOD(view[3]);
 		break;
 	case('1'):
 		innerLevel = glm::min(12, innerLevel + 1);
@@ -807,11 +804,6 @@ void keyboardFunc(unsigned char key, int x, int y)
 		applyDisplacement = !applyDisplacement;
 		break;
 	}
-}
-
-void calculateLOD(glm::vec4 cameraPos)
-{
-	float distanceToObject = cameraPos.length();
 }
 
 void mouseFunc(int button, int state, int x, int y)

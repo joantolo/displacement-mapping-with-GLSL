@@ -21,31 +21,37 @@
     <None Include="..\shaders\postProcessing.vert">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders\passTrough.geo">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="..\shaders\textLight.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="..\shaders\textLight.vert">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="..\shaders\renderNormalsByVertex.geo">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="..\shaders\renderNormals.frag">
       <Filter>shaders</Filter>
     </None>
     <None Include="..\shaders\renderNormals.vert">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders\renderNormalsByTriangle.geo">
+    <None Include="..\shaders\fwRendering.quads.tesc">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders\renderPoints.geo">
+    <None Include="..\shaders\fwRendering.quads.tese">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders\renderWireframe.geo">
+    <None Include="..\shaders\fwRendering.trian.tesc">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\fwRendering.trian.tese">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\passTrough.geom">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\renderNormalsByTriangle.geom">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\renderNormalsByVertex.geom">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\renderPoints.geom">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\renderWireframe.geom">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
