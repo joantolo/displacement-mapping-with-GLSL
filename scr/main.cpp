@@ -134,6 +134,9 @@ unsigned int nVertexIndex;
 float theta = 0.0f;
 float phi = 0.0f;
 bool moveCam;
+int cameraStartingDistance = 40;
+float cameraStep = 6;
+float LODVariationRate = 0.25;
 
 //Variables near y far
 float projNear, projFar;
@@ -253,11 +256,11 @@ void initOGL()
 	modelLight = glm::mat4(1);
 
 	//Inicializamos la cámara
-	view = glm::lookAt(glm::vec3(0, 0, 40), glm::vec3(0), glm::vec3(0, 1, 0));
+	view = glm::lookAt(glm::vec3(0, 0, cameraStartingDistance), glm::vec3(0), glm::vec3(0, 1, 0));
 	moveCam = false;
 	//Establecemos los niveles de subdivisión para teselación
-	outerLevel = 5;
-	innerLevel = 4;
+	outerLevel = 3;
+	innerLevel = 3;
 	applyDisplacement = false;
 }
 
@@ -651,9 +654,9 @@ void renderFunc()
 	///////////
 	//Geometry
 	///////////
-	glUseProgram(geometryProgram);
+	/*glUseProgram(geometryProgram);
 
-	renderObject(false);
+	renderObject(false);*/
 
 	///////////
 	//Post-procesing
@@ -776,18 +779,18 @@ void keyboardFunc(unsigned char key, int x, int y)
 		break;
 	case('a'):
 	case('A'):
-		dir = -view[3];
-		view[3].x += dir.x * 0.1;
-		view[3].y += dir.y * 0.1;
-		view[3].z += dir.z * 0.1;
+		dir = -glm::normalize(view[3]) * cameraStep;
+		view[3].x += dir.x;
+		view[3].y += dir.y;
+		view[3].z += dir.z;
 		calculateLOD(view[3]);
 		break;
 	case('s'):
 	case('S'):
-		dir = view[3];
-		view[3].x += dir.x * 0.1;
-		view[3].y += dir.y * 0.1;
-		view[3].z += dir.z * 0.1;
+		dir = glm::normalize(view[3]) * cameraStep;
+		view[3].x += dir.x;
+		view[3].y += dir.y;
+		view[3].z += dir.z;
 		calculateLOD(view[3]);
 		break;
 	case('1'):
@@ -811,7 +814,30 @@ void keyboardFunc(unsigned char key, int x, int y)
 
 void calculateLOD(glm::vec4 cameraPos)
 {
-	float distanceToObject = cameraPos.length();
+	float distanceToObject = glm::length(cameraPos);
+	float thresholdForLODChange = cameraStartingDistance * LODVariationRate;
+	float farthestLODDistance = cameraStartingDistance + thresholdForLODChange;
+	float closestVariationRate = cameraStartingDistance - thresholdForLODChange;
+	std::cout << "pos " << distanceToObject << " farthest " << farthestLODDistance << " closest " << closestVariationRate << std::endl;
+
+	if (distanceToObject < farthestLODDistance && distanceToObject > closestVariationRate)
+	{
+		outerLevel = 5;
+		innerLevel = 5;
+		std::cout << "estamos en la distancia media" << std::endl;
+	}
+	else if (distanceToObject < closestVariationRate)
+	{
+		outerLevel = 10;
+		innerLevel = 10;
+		std::cout << "estamos cerca" << std::endl;
+	}
+	else if (distanceToObject > farthestLODDistance)
+	{
+		outerLevel = 2;
+		innerLevel = 2;
+		std::cout << "estamos lejos" << std::endl;
+	}
 }
 
 void mouseFunc(int button, int state, int x, int y)

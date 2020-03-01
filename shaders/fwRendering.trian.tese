@@ -49,7 +49,7 @@ void main()
 	//Desplazamiento por textura de color
 	if(applyDisplacement)
 	{
-		vec4 translation  = length(texture(colorTex, teTexCoord)) * normalize(vec4(teNorm, 0));
+		vec4 translation  = length(texture(colorTex, teTexCoord)) * normalize(vec4(tePos, 0));
 		tePos = translation.xyz + tePos;
 		gl_Position = translation + pos;
 	}else
