@@ -5,9 +5,9 @@ layout(location = 1) out vec4 outPosVertex;
 layout(location = 2) out vec4 outNormalVertex;
 layout(location = 3) out vec4 outEmiTex;
 
-in vec3 color;
 in vec3 pos;
 in vec3 norm;
+in vec3 color;
 in vec2 texCoord;
 
 uniform sampler2D colorTex;
@@ -19,7 +19,7 @@ void main()
 
 	outNormalVertex = vec4(normalize(norm), 0);
 
-	outEmiTex = texture(emiTex, texCoord);
+	outEmiTex =  texture(emiTex, texCoord);
 
 	outColor =  texture(colorTex, texCoord);
 }
