@@ -9,7 +9,7 @@ uniform mat4 normal;
 uniform mat4 modelView;
 uniform mat4 modelViewProj;
 
-out vec3 pos;
+//out vec3 pos;
 out vec3 norm;
 out vec3 color;
 out vec2 texCoord;
@@ -19,7 +19,7 @@ void main()
 	color = vec3(1,1,0);
 	texCoord = inTexCoord;
 	norm = (normal * vec4(inNormal, 0.0)).xyz;
-	pos = (modelView * vec4(inPos, 1.0)).xyz;
+	//pos = (modelView * vec4(inPos, 1.0)).xyz;
 
-	gl_Position= modelViewProj * vec4(inPos, 1.0);
+	gl_Position= vec4(inPos, 1.0);
 }

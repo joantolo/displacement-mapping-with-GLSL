@@ -23,15 +23,6 @@ void PointInPlace(int index)
     gl_Position = gl_in[index].gl_Position;
     EmitVertex();    
 
-    gl_Position = gl_in[index].gl_Position ;
-    EmitVertex();   
-
-    gl_Position = gl_in[index].gl_Position ;
-    EmitVertex();   
-
-    gl_Position = gl_in[index].gl_Position ;
-    EmitVertex();
-
     EndPrimitive();
 }
 

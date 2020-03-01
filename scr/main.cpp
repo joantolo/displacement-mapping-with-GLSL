@@ -176,7 +176,7 @@ int main(int argc, char** argv)
 	initOGL();
 	initShaderFw("../shaders/fwRendering.vert", "../shaders/fwRendering.frag");
 	//initShaderPP("../shaders/postProcessing.vert", "../shaders/postProcessing.frag");
-	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderNormalsByTriangle.geo", "../shaders/renderNormals.frag");
+	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderWireframe.geo", "../shaders/renderNormals.frag");
 
 	initObj();
 	initPlane();
@@ -372,9 +372,6 @@ void initShaderGeo(const char* vname, const char* gname, const char* fname)
 	uModelViewMatGeo = glGetUniformLocation(geometryProgram, "modelView");
 	uModelViewProjMatGeo = glGetUniformLocation(geometryProgram, "modelViewProj");
 
-	/*uColorTex = glGetUniformLocation(geometryProgram, "colorTex");
-	uEmiTex = glGetUniformLocation(geometryProgram, "emiTex");*/
-
 	inPosGeo = glGetAttribLocation(geometryProgram, "inPos");
 	inNormalGeo = glGetAttribLocation(geometryProgram, "inNormal");
 }
@@ -443,7 +440,8 @@ void initObj()
 	std::vector< glm::vec3 > normals;
 	std::vector <unsigned int> indexes;
 
-	bool res = loadOBJ("../models/teapot.obj", vertexes, uvs, normals, indexes);
+	bool res = loadOBJ("../models/teapotGood.obj", vertexes, uvs, normals, indexes);
+	//bool res = loadOBJ("../models/box.obj", vertexes, uvs, normals, indexes);
 	unsigned int nVertex = vertexes.size();
 	nVertexIndex = indexes.size();
 
