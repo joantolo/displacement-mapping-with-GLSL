@@ -135,9 +135,9 @@ unsigned int nVertexIndex;
 float theta = 0.0f;
 float phi = 0.0f;
 bool moveCam;
-int cameraStartingDistance = 40;
-float cameraStep = 6;
-float LODVariationRate = 0.25;
+int cameraStartingDistance = 40.0f;
+float cameraStep = 3.0f;
+float LODVariationRate = 0.25f;
 
 //Variables near y far
 float projNear, projFar;
@@ -261,7 +261,7 @@ void initOGL()
 	moveCam = false;
 	//Establecemos los niveles de subdivisión para teselación
 	outerLevel = 5;
-	innerLevel = 4;
+	innerLevel = 5;
 	applyDisplacement = false;
 }
 
@@ -533,6 +533,7 @@ void initObj(const char* filename)
 	//Para los shaders de tesselacion
 	//glPatchParameteri(GL_PATCH_VERTICES, 4); //Caso de quads
 	glPatchParameteri(GL_PATCH_VERTICES, 3); //Caso de triangulos
+
 	modelObject = glm::mat4(1.0f);
 
 	colorTexId = loadTex("../img/map_tex.png");

@@ -15,11 +15,14 @@ out vec2 teTexCoord;
 uniform sampler2D colorTex;
 uniform bool applyDisplacement;
 
+uniform mat4 modelViewProj;
+uniform mat4 modelView;
+
 vec4 interpolate(in vec4 v0, in vec4 v1, in vec4 v2);
 vec3 interpolate(in vec3 v0, in vec3 v1, in vec3 v2);
 vec2 interpolate(in vec2 v0, in vec2 v1, in vec2 v2);
 
-const float MAGNITUDE = 1.2;
+const float MAGNITUDE = 1.8;
 
 void main()
 { 
@@ -52,12 +55,13 @@ void main()
 	if(applyDisplacement)
 	{
 		vec4 translation = MAGNITUDE * length(texture(colorTex, teTexCoord)) * normalize(vec4(tePos, 0));
-		tePos = translation.xyz + tePos;
-		gl_Position = translation + pos;
+		tePos = (modelView * vec4((translation.xyz + tePos), 1)).xyz;
+		gl_Position = modelViewProj * (translation + pos);
 	}else
 	{
 		//sin desplazamiento
-		gl_Position = pos;
+		tePos = (modelView * vec4(tePos, 1)).xyz;
+		gl_Position = modelViewProj * pos;
 	}
 }
 
