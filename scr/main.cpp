@@ -33,6 +33,7 @@ unsigned int fbo;
 
 //VBOs que forman parte del objeto
 unsigned int posVBO;
+unsigned int posVBOGeo;
 unsigned int colorVBO;
 unsigned int normalVBO;
 unsigned int texCoordVBO;
@@ -134,6 +135,9 @@ unsigned int nVertexIndex;
 float theta = 0.0f;
 float phi = 0.0f;
 bool moveCam;
+int cameraStartingDistance = 40;
+float cameraStep = 6;
+float LODVariationRate = 0.25;
 
 //Variables near y far
 float projNear, projFar;
@@ -186,7 +190,7 @@ int main(int argc, char** argv)
 	initOGL();
 
 	initShaderFw("../shaders/fwRendering.vert", "../shaders/fwRendering.frag", "../shaders/fwRendering.trian.tesc", "../shaders/fwRendering.trian.tese");
-	initShaderGeo("../shaders/renderNormals.vert", "../shaders/renderWireframe.geom", "../shaders/renderNormals.frag");
+	initShaderGeo("../shaders/geoRendering.vert", "../shaders/renderWireframe.geom", "../shaders/geoRendering.frag");
 	initShaderPP("../shaders/postProcessing.vert", "../shaders/postProcessing.frag");
 
 	initObj("../models/teapot.obj");
@@ -253,7 +257,7 @@ void initOGL()
 	modelLight = glm::mat4(1);
 
 	//Inicializamos la cámara
-	view = glm::lookAt(glm::vec3(0, 0, 40), glm::vec3(0), glm::vec3(0, 1, 0));
+	view = glm::lookAt(glm::vec3(0, 0, cameraStartingDistance), glm::vec3(0), glm::vec3(0, 1, 0));
 	moveCam = false;
 	//Establecemos los niveles de subdivisión para teselación
 	outerLevel = 5;
@@ -291,6 +295,8 @@ void destroy()
 	if (inColor != -1) glDeleteBuffers(1, &colorVBO);
 	if (inNormal != -1) glDeleteBuffers(1, &normalVBO);
 	if (inTexCoord != -1) glDeleteBuffers(1, &texCoordVBO);
+	if (inPosGeo != -1) glDeleteBuffers(1, &posVBOGeo);
+
 	glDeleteBuffers(1, &triangleIndexVBO);
 
 	glDeleteVertexArrays(1, &vao);
@@ -401,6 +407,9 @@ void initShaderGeo(const char* vname, const char* gname, const char* fname)
 
 	inPosGeo = glGetAttribLocation(geometryProgram, "inPos");
 	inNormalGeo = glGetAttribLocation(geometryProgram, "inNormal");
+
+	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+	glPointSize(6.0f);
 }
 
 void initShaderPP(const char* vname, const char* fname)
@@ -485,17 +494,15 @@ void initObj(const char* filename)
 		glEnableVertexAttribArray(inPos);
 	}
 
-	/*
-	if (inColor != -1)
+	if (inPosGeo != -1)
 	{
-		glGenBuffers(1, &colorVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-		glBufferData(GL_ARRAY_BUFFER, nVertex * sizeof(float) * 3,
-			cubeVertexColor, GL_STATIC_DRAW);
-		glVertexAttribPointer(inColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(inColor);
+		glGenBuffers(1, &posVBOGeo);
+		glBindBuffer(GL_ARRAY_BUFFER, posVBOGeo);
+		glBufferData(GL_ARRAY_BUFFER, nVertex * sizeof(glm::vec3),
+			&vertexes[0], GL_STATIC_DRAW);
+		glVertexAttribPointer(inPosGeo, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(inPosGeo);
 	}
-	*/
 
 	if (inNormal != -1)
 	{
@@ -776,31 +783,19 @@ void keyboardFunc(unsigned char key, int x, int y)
 		break;
 	case('a'):
 	case('A'):
-		dir = -view[3];
-		view[3].x += dir.x * 0.1;
-		view[3].y += dir.y * 0.1;
-		view[3].z += dir.z * 0.1;
+		dir = -glm::normalize(view[3]) * cameraStep;
+		view[3].x += dir.x;
+		view[3].y += dir.y;
+		view[3].z += dir.z;
 		calculateLOD(view[3]);
 		break;
 	case('s'):
 	case('S'):
-		dir = view[3];
-		view[3].x += dir.x * 0.1;
-		view[3].y += dir.y * 0.1;
-		view[3].z += dir.z * 0.1;
+		dir = glm::normalize(view[3]) * cameraStep;
+		view[3].x += dir.x;
+		view[3].y += dir.y;
+		view[3].z += dir.z;
 		calculateLOD(view[3]);
-		break;
-	case('1'):
-		innerLevel = glm::min(12, innerLevel + 1);
-		break;
-	case('2'):
-		innerLevel = glm::max(3, innerLevel - 1);
-		break;
-	case('3'):
-		outerLevel = glm::min(12, outerLevel + 1);
-		break;
-	case('4'):
-		outerLevel = glm::max(3, outerLevel - 1);
 		break;
 	case('q'):
 	case('Q'):
@@ -811,7 +806,26 @@ void keyboardFunc(unsigned char key, int x, int y)
 
 void calculateLOD(glm::vec4 cameraPos)
 {
-	float distanceToObject = cameraPos.length();
+	float distanceToObject = glm::length(cameraPos);
+	float thresholdForLODChange = cameraStartingDistance * LODVariationRate;
+	float farthestLODDistance = cameraStartingDistance + thresholdForLODChange;
+	float closestVariationRate = cameraStartingDistance - thresholdForLODChange;
+
+	if (distanceToObject < farthestLODDistance && distanceToObject > closestVariationRate)
+	{
+		outerLevel = 5;
+		innerLevel = 5;
+	}
+	else if (distanceToObject < closestVariationRate)
+	{
+		outerLevel = 10;
+		innerLevel = 10;
+	}
+	else if (distanceToObject > farthestLODDistance)
+	{
+		outerLevel = 2;
+		innerLevel = 2;
+	}
 }
 
 void mouseFunc(int button, int state, int x, int y)

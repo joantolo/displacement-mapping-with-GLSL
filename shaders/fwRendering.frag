@@ -19,7 +19,7 @@ void main()
 
 	outNormalVertex = vec4(normalize(teNorm), 0);
 
-	outEmiTex = vec4(0); //texture(emiTex, teTexCoord);
+	outEmiTex = vec4(0);
 
 	outColor = texture(colorTex, teTexCoord);
 }

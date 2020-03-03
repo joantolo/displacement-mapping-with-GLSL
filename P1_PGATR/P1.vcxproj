@@ -17,11 +17,10 @@
     <None Include="..\shaders\fwRendering.trian.tesc" />
     <None Include="..\shaders\fwRendering.trian.tese" />
     <None Include="..\shaders\fwRendering.vert" />
-    <None Include="..\shaders\passTrough.geom" />
     <None Include="..\shaders\postProcessing.frag" />
     <None Include="..\shaders\postProcessing.vert" />
-    <None Include="..\shaders\renderNormals.frag" />
-    <None Include="..\shaders\renderNormals.vert" />
+    <None Include="..\shaders\geoRendering.frag" />
+    <None Include="..\shaders\geoRendering.vert" />
     <None Include="..\shaders\renderNormalsByTriangle.geom" />
     <None Include="..\shaders\renderNormalsByVertex.geom" />
     <None Include="..\shaders\renderPoints.geom" />

@@ -21,12 +21,6 @@
     <None Include="..\shaders\postProcessing.vert">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders\renderNormals.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="..\shaders\renderNormals.vert">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="..\shaders\fwRendering.quads.tesc">
       <Filter>shaders</Filter>
     </None>
@@ -39,9 +33,6 @@
     <None Include="..\shaders\fwRendering.trian.tese">
       <Filter>shaders</Filter>
     </None>
-    <None Include="..\shaders\passTrough.geom">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="..\shaders\renderNormalsByTriangle.geom">
       <Filter>shaders</Filter>
     </None>
@@ -52,6 +43,12 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="..\shaders\renderWireframe.geom">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\geoRendering.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders\geoRendering.vert">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

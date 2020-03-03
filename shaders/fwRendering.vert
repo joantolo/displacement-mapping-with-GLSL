@@ -21,5 +21,5 @@ void main()
 	vNorm = (normal * vec4(inNormal, 0.0)).xyz;
 	vPos = (modelView * vec4(inPos, 1.0)).xyz;
 	
-	gl_Position =  modelViewProj * vec4 (inPos,1.0);
+	gl_Position =  modelViewProj * vec4 (inPos, 1.0);
 }
